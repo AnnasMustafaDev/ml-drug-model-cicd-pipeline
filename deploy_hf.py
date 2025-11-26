@@ -1,8 +1,9 @@
 # deploy_hf.py
-from huggingface_hub import Repository, login
+from huggingface_hub import HfApi, login
 import shutil
 import os
 import sys
+from pathlib import Path
 
 HF_TOKEN = os.environ.get("HF")
 HF_REPO = os.environ.get("HF_REPO")  # e.g., "AnnasMustafaDev/drug-classification"
@@ -11,15 +12,29 @@ if not HF_TOKEN or not HF_REPO:
     sys.exit("HF token or HF_REPO not set as environment variables!")
 
 # Login
-login(HF_TOKEN)
+login(token=HF_TOKEN)
 
-# Clone the HF repo
-repo = Repository(local_dir="hf_space", clone_from=f"https://huggingface.co/spaces/{HF_REPO}", use_auth_token=HF_TOKEN)
+# Initialize API
+api = HfApi()
+
+# Create local directory for staging
+local_dir = Path("hf_space")
+local_dir.mkdir(exist_ok=True)
 
 # Copy app files
-shutil.copytree("App", "hf_space", dirs_exist_ok=True)
-shutil.copytree("Model", "hf_space/Model", dirs_exist_ok=True)
+shutil.copytree("App", local_dir, dirs_exist_ok=True)
+shutil.copytree("Model", local_dir / "Model", dirs_exist_ok=True)
 
-# Commit & push
-repo.push_to_hub(commit_message="Update app + model")
-print("✅ Deployment complete!")
+# Upload to Hugging Face Space
+try:
+    api.upload_folder(
+        folder_path=str(local_dir),
+        repo_id=HF_REPO,
+        repo_type="space",
+        token=HF_TOKEN,
+        commit_message="Update app + model"
+    )
+    print("✅ Deployment complete!")
+except Exception as e:
+    print(f"❌ Deployment failed: {e}")
+    sys.exit(1)

@@ -24,8 +24,8 @@ update-branch:
 
 # Deploy to Hugging Face (App folder + Model + Results)
 deploy:
-	python -m pip install huggingface_hub
-	hf-cli login --token $(HF)
+	python deploy_hf.py
+
 	# push App folder (Space) and Model/Results as files to the repo or HuggingFace
 	# for Spaces: huggingface-cli repo create <space-name> --type space   (manually)
 	# Here we push to the hf repo root (example).

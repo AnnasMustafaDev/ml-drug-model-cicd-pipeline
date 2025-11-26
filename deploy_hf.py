@@ -5,6 +5,15 @@ import os
 import sys
 from pathlib import Path
 
+import subprocess
+import sys
+
+# Ensure compatible versions
+subprocess.check_call([
+    sys.executable, "-m", "pip", "install",
+    "gradio==4.16.0",
+    "huggingface_hub==0.20.3"
+])
 HF_TOKEN = os.environ.get("HF")
 HF_REPO = os.environ.get("HF_REPO")  # e.g., "AnnasMustafaDev/drug-classification"
 

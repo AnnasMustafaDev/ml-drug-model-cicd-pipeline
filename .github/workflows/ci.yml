@@ -1,31 +1,35 @@
-name: Continuous Integration
-on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  workflow_dispatch:
-permissions: write-all
+name: CI
+
+on: [push, pull_request]
 
 jobs:
-  build:
+  training:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: iterative/setup-cml@v2
-      - name: Install Packages
-        run: make install
-      - name: Format
-        run: make format
-      - name: Train
-        run: make train
-      - name: Evaluation
-        env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make eval
-      - name: Update Branch
-        if: always()
-        env:
-          NAME: ${{ secrets.USER_NAME }}
-          EMAIL: ${{ secrets.USER_EMAIL }}
-        run: make update-branch USER_NAME=$NAME USER_EMAIL=$EMAIL
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run training
+      run: python train.py
+
+    - name: Generate report (replaces CML)
+      run: make eval
+
+    - name: Upload generated model + results artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: training-results
+        path: |
+          Model/
+          Results/
+          report.md

@@ -1,6 +1,6 @@
 ---
 title: Drug Classification
-emoji:
+emoji: 💊
 colorFrom: yellow
 colorTo: red
 sdk: gradio

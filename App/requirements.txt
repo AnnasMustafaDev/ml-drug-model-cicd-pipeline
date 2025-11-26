@@ -1,6 +1,5 @@
-pandas
+gradio>=4.16.0
 scikit-learn
-matplotlib
 skops
-cml
-black
+pandas
+matplotlib
